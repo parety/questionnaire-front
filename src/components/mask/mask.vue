@@ -1,38 +1,42 @@
 <template>
-<div>
-    <div class="mask">
-    </div>
-    <div class="info-panel">
-        <div class="panel-header">
-            <span>提示</span>
-            <span @click="cancel">X</span>
+    <div>
+        <div class="mask">
         </div>
-        <div class="panel-body">
-            <p>确定要删除问卷吗</p>
-            <p>
-                <span @click="confirm">确定</span> 
-                <span @click="cancel">取消</span>                
-            </p>
+        <div class="info-panel">
+            <div class="panel-header">
+                <span>提示</span>
+                <span @click="cancel">X</span>
+            </div>
+            <div class="panel-body">
+                <p v-html="msg"></p>
+                <p>
+                    <span @click="confirm">确定</span> 
+                    <span @click="cancel">取消</span>                
+                </p>
+            </div>
         </div>
     </div>
-</div>
 </template>
 
 <script type="text/ecmascript-6">
+import bus from '../../store.js'
+
 export default {
-    data() {
+    data () {
         return {
-        };
+        }
     },
-    methods : {
-        confirm(){
-            this.$emit('confirmdel');
+    props: ['type', 'msg'],
+    methods: {
+        confirm () {
+            bus.$emit(this.type)
+            bus.$emit('maskHidden')
         },
-        cancel(){
-            this.$emit('canceldel')
+        cancel () {
+            bus.$emit('maskHidden')
         }
     }
-};
+}
 
 </script>
 
@@ -49,7 +53,7 @@ export default {
 .info-panel
     position : fixed
     width : 240px
-    height : 150px
+    height : 180px
     left : 50% 
     top : 30%
     margin : 0 -150px
@@ -69,6 +73,7 @@ export default {
     .panel-body
         p:nth-child(1)
             padding : 20px 0 40px
+            line-height: 24px
         p:nth-child(2)
             text-align : center
             span 

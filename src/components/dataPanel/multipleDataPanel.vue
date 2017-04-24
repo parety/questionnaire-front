@@ -6,35 +6,31 @@
             <p>{{title}}</p>
         </div>
     </h2>
-    <div class="graph" v-el:graph>
+    <div class="graph" ref="graph">
 
     </div>
 </div>
 </template>
 
 <script type="text/ecmascript-6">
-var echarts = require('echarts');
+let echarts = require('echarts')
 
 export default {
-    props : ['content', 'title', 'index'],
-    data() {
-        return {
-        };
-    },
-    ready(){
-        var data = [];
-        for(var key in this.content){
+    props: ['optionNum', 'optionTxt', 'title', 'index'],
+    mounted () {
+        let data = []
+        for (let i = 0; i < this.optionNum.length; i++) {
             data.push({
-                name : `${key} : ${this.content[key]}`,
-                value : this.content[key]
+                name: this.optionTxt[i],
+                value: this.optionNum[i]
             })
         }
-        echarts.init(this.$els.graph).setOption({
-            series : [
+        echarts.init(this.$refs.graph).setOption({
+            series: [
                 {
-                    type : 'pie',
-                    radius : '50%',
-                    data : data
+                    type: 'pie',
+                    radius: '50%',
+                    data: data
                 }
             ]
         })

@@ -1,5 +1,5 @@
 <template>
-    <div class="createPage">
+    <div class="update">
         <div class="createHeader">
             <h1 v-if="!titleModify" @click="modifyTitle">{{questionaire.title}}</h1>
             <input v-else @blur="titleModify = false" ref="titleInput" type="text" v-model="questionaire.title" >
@@ -59,33 +59,19 @@ export default {
     },
     mounted () {
         this.ower = bus.user.id
-        // 发布问卷
-        bus.$on('publish', () => {
-            this.$http.post('/api/save', {
-                ower: this.ower,
-                createTime: new Date().getTime(),
-                deadTime: new Date(this.date).getTime(),
-                // 是否可编辑
-                edit: 0,
-                questionaire: this.questionaire
-            })
-            .then((res) => {
-                // 发布失败
-                if (res.body.code) {
+        // 初始化数据
+        this.$http.get(`/api/questionaire/${this.$route.params.id}`)
+            .then((data) => {
+                console.log(data)
+                if (data.body.code) {
                     bus.$emit('msg', {
-                        message: '发布失败，请重试',
+                        message: '获取问卷失败，请重试',
                         type: 'fail'
                     })
-                // 发布成功
                 } else {
-                    bus.$emit('msg', {
-                        message: '发布成功',
-                        type: 'success'
-                    })
-                    this.$router.push({path: `/user/${this.ower}`})
+                    this.questionaire = data.body.questionaire
                 }
             })
-        })
     },
     methods: {
         // 修改标题
@@ -175,37 +161,19 @@ export default {
             this.date = date
             this.calanderShow = false
         },
-        // 发布问卷
-        publish () {
-            if (!this.date) {
-                bus.$emit('msg', {
-                    message: '请输入截止日期',
-                    type: 'fail'
-                })
-                return
-            }
-            if (!this.questionaire.questions.length) {
-                bus.$emit('msg', {
-                    message: '至少创建一个问题吧',
-                    type: 'fail'
-                })
-                return
-            }
-            bus.$emit('maskShow', {
-                show: true,
-                type: 'publish',
-                msg: `是否发布问卷？<br>(此问卷截止日期为${this.date})`
-            })
-        },
         // 保存问卷
         save () {
-            this.$http.post('/api/save', {
-                ower: this.ower,
-                createTime: new Date().getTime(),
-                deadTime: new Date(this.date).getTime(),
-                // 是否可编辑
-                edit: 1,
-                questionaire: this.questionaire
+            let id = this.$route.params.id
+            this.$http.post('/api/update', {
+                id: id,
+                newQuestionaire: {
+                    ower: this.ower,
+                    createTime: new Date().getTime(),
+                    deadTime: new Date(this.date).getTime(),
+                    // 是否可编辑
+                    edit: 1,
+                    questionaire: this.questionaire
+                }
             })
             .then((res) => {
                 // 保存失败
@@ -223,6 +191,37 @@ export default {
                     this.$router.push({path: `/user/${this.ower}`})
                 }
             })
+        },
+        // 发布问卷
+        publish () {
+            let id = this.$route.params.id
+            this.$http.post('/api/update', {
+                id: id,
+                newQuestionaire: {
+                    ower: this.ower,
+                    createTime: new Date().getTime(),
+                    deadTime: new Date(this.date).getTime(),
+                    // 是否可编辑
+                    edit: 0,
+                    questionaire: this.questionaire
+                }
+            })
+            .then((res) => {
+                // 发布失败
+                if (res.body.code) {
+                    bus.$emit('msg', {
+                        message: '发布失败，请重试',
+                        type: 'fail'
+                    })
+                // 发布成功
+                } else {
+                    bus.$emit('msg', {
+                        message: '发布成功',
+                        type: 'success'
+                    })
+                    this.$router.push({path: `/user/${this.ower}`})
+                }
+            })
         }
     },
     components: {
@@ -235,7 +234,7 @@ export default {
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
-.createPage
+.update
     width : 660px
     padding : 20px
     margin : 40px auto

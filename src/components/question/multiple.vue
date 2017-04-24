@@ -1,79 +1,105 @@
 <template>
-<div class="multiple">
-    <h2>
-        <div>Q{{index+1}}</div>
-        <div>
-            <p v-show='!titleInput' @click="titleInput=true">{{content.title}}</p>
-            <input v-else type="text" :value="content.title" @blur="modifyTitle($event)">
+    <div class="multiple">
+        <h2>
+            <div>Q{{index+1}}</div>
+            <div>
+                <p v-if='!titleModify' @click="showTitleInput">{{content.title}}</p>
+                <input v-else ref="titleInput" type="text" :value="content.title" @blur="modifyTitle($event)">
+            </div>
+        </h2>
+        <div class="options">
+            <div class="optionItemContainer" v-for="(option, index) in content.options" :key="index">
+                <input type="checkbox">
+                <div class="optionContent">
+                    <p v-if="!optionsInput[index]" @click="showOptionInput(index)">{{option}}</p>
+                    <input v-else :ref="'optionsInput'+index" @blur="hiddenOptionInput(index, $event)" type="text" :value="option">
+                </div>
+                <div class="optionsDelBtn" @click="deleteOption(index)">
+                    X
+                </div>
+            </div>
         </div>
-    </h2>
-    <div class="options">
-        <div class="optionItemContainer" v-for="option in content.options" track-by="$index">
-            <input class="optionradio" type="checkbox" :name="'question-'+index" :value="option">
-            <div class="optionContent">
-                <p v-show="!optionsInput[$index]" @click="optionsInput.splice($index, 1, true)">{{option}}</p>
-                <input v-else type="text" :value="option" @blur="modifyOption($index, $event)">
-            </div>
-            <div class="optionsDelBtn" @click="deleteOption($index)">
-                X
-            </div>
+        <div class="direct">
+            <span @click="addOption" class="left">添加选项</span>         
+            <span @click="deleteQuestion" class="right">删除</span>
+            <span @click="repeatQuestion" class="right">复用</span>
+            <span @click="toDown" class="right" v-if="index!==alllen-1">下移</span>
+            <span @click="toUp" class="right" v-if="index!==0">上移</span>
         </div>
     </div>
-    <div class="direct">
-        <span @click="addOption" class="left">添加选项</span>         
-        <span @click="deleteQuestion" class="right">删除</span>
-        <span @click="repeatQuestion" class="right">复用</span>
-        <span @click="toDown" class="right" v-if="index!==alllen-1">下移</span>
-        <span @click="toUp" class="right" v-if="index!==0">上移</span>
-    </div>
-</div>
 </template>
 
 <script type="text/ecmascript-6">
 export default {
-    props : ['content', 'index', 'alllen'],
-    data() {
+    props: ['content', 'index', 'alllen'],
+    data () {
         return {
-            titleInput : false,
-            optionsInput : []
-        };
-    },
-    created(){
-        for(var i=0; i<this.content.options.length; i++){
-            this.optionsInput.push(false);
+            titleModify: false,
+            optionsInput: []
         }
     },
-    methods : {
-        modifyTitle(ev){
-            this.$dispatch('modifytitle', ev.target.value, this.index);
-            this.titleInput = false;
+    watch: {
+        content: {
+            handler () {
+                this.optionsInput = []
+                for (let i = 0, j = this.content.options.length; i < j; i++) {
+                    this.optionsInput.push(false)
+                }
+            },
+            deep: true
+        }
+    },
+    methods: {
+        // 显示title输入框
+        showTitleInput () {
+            this.titleModify = true
+            this.$nextTick(() => {
+                this.$refs.titleInput.focus()
+            })
         },
-        modifyOption(index, ev){
-            this.$dispatch('modifyoption', ev.target.value, index, this.index);
-            this.optionsInput.splice(index, 1, false);
+        // 显示option输入框
+        showOptionInput (index) {
+            this.optionsInput.splice(index, 1, true)
+            this.$nextTick(() => {
+                this.$refs['optionsInput' + index][0].focus()
+            })
         },
-        deleteOption(index){
-            this.optionsInput.splice(index, 1);
-            this.$dispatch('deleteOption', this.index, index);
-        },        
-        addOption(){
-            this.optionsInput.push(false);
-            this.$dispatch('addOption', this.index);
-        },                
-        repeatQuestion(){
-            this.$dispatch('repeatQuestion', this.index);
+        // 改变title值
+        modifyTitle (ev) {
+            this.$emit('modifyQuestionTitle', ev.target.value, this.index)
+            this.titleModify = false
         },
-        deleteQuestion(){
-            this.$dispatch('deleteQuestion', this.index);
+        // 改变options的值
+        hiddenOptionInput (index, ev) {
+            this.$emit('modifyOptionTitle', ev.target.value, index, this.index)
+            this.optionsInput.splice(index, 1, false)
         },
-        toDown(){
-            this.$dispatch('toDown', this.index);
-        },    
-        toUp(){
-            this.$dispatch('toUp', this.index);
-        }    
+        // 删除option
+        deleteOption (index) {
+            this.$emit('deleteOption', index, this.index)
+        },
+        // 添加选项
+        addOption () {
+            this.$emit('addOption', this.index)
+        },
+        // 删除问题
+        deleteQuestion () {
+            this.$emit('deleteQuestion', this.index)
+        },
+        // 复用问题
+        repeatQuestion () {
+            this.$emit('repeatQuestion', this.index)
+        },
+        // 下移
+        toDown () {
+            this.$emit('toDown', this.index)
+        },
+        // 上移
+        toUp () {
+            this.$emit('toUp', this.index)
+        }
     }
-};
+}
 
 </script>
 
@@ -88,10 +114,10 @@ export default {
     h2 
         height : 30px
         div 
-            float : left
-            height : 30px
-            font-size : 16px
+            float: left
+            height: 30px
             line-height : 30px
+            font-size : 16px
             &:nth-child(1) 
                 width : 6%
             &:nth-child(2)
@@ -105,22 +131,20 @@ export default {
                     border : none
                     outline : none
     .options 
-        padding-left : 34px
+        padding-left : 30px
         .optionItemContainer 
             width : 100% 
             height : 30px 
             &:hover
                 .optionsDelBtn
-                    display : block
-            .optionradio 
-                display : block 
-                float : left
+                    display: block
+            input[type=checkbox]
+                float: left
                 width : 4%
-                height : 14px
-                margin-top : 8px
+                margin-top: 8px
             .optionContent 
+                float: left
                 width : 93% 
-                float : left
                 height : 30px
                 line-height : 30px
                 p 
@@ -134,8 +158,8 @@ export default {
                     outline : none
             .optionsDelBtn
                 display : none
+                float: left
                 width : 3% 
-                float : left
                 height : 30px
                 line-height : 30px
                 text-align : center

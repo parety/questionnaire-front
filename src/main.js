@@ -1,41 +1,40 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import VueResource from 'vue-resource';
-import App from './App';
-import indexPage from './components/indexPage/indexPage';
-import create from './components/create/create';
-import edit from './components/edit/edit';
-import questionnaire from './components/questionnaire/questionnaire';
-import questionnaireData from './components/questionnaireData/questionnaireData';
-import '../static/css/reset';
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import VueResource from 'vue-resource'
+import App from './App'
+import routes from './routers.js'
+import bus from './store.js'
+import './common/stylus/index.styl'
 
-Vue.use(VueRouter);
-Vue.use(VueResource);
+// 路由
+Vue.use(VueRouter)
+// ajax
+Vue.use(VueResource)
 
-let app = Vue.extend(App);
+const router = new VueRouter({
+  // 启用history模式
+  mode: 'history',
+  routes
+})
 
-let router = new VueRouter();
-
-router.map({
-    '/main' : {
-        component : indexPage
-    },
-    '/create' : {
-        component : create
-    },
-    '/edit/:id' : {
-        component : edit
-    },
-    '/questionnaire/:id' : {
-        component : questionnaire
-    },
-    '/questionnaireData/:id' : {
-        component : questionnaireData
+// 登录中间件
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (bus.user.username) {
+            next()
+        } else {
+            next({
+                path: '/login'
+            })
+        }
+    } else {
+        next()
     }
 })
 
-router.redirect({
-    '/': '/main'
+new Vue({
+    el: '#app',
+    template: '<App></App>',
+    router,
+    components: { App }
 })
-
-router.start(app, '#app');

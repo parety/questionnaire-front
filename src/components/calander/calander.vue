@@ -30,40 +30,50 @@
 </template>
 
 <script type="text/ecmascript-6">
+import bus from '../../store.js'
+
 export default {
-    data() {
+    data () {
         return {
-            year : 0,
-            month : 0
-        };
+            year: 0,
+            month: 0
+        }
     },
-    created() {
-        this.year = new Date().getFullYear();
-        this.month = new Date().getMonth() + 1;
+    created () {
+        this.year = new Date().getFullYear()
+        this.month = new Date().getMonth() + 1
     },
-    computed : {
-        dayNum() {
-            var date = new Date();
-            date.setYear(this.year);
-            date.setMonth(this.month);
-            date.setDate(0);
-            return date.getDate();
+    computed: {
+        dayNum () {
+            var date = new Date()
+            date.setYear(this.year)
+            date.setMonth(this.month)
+            date.setDate(0)
+            return date.getDate()
         },
-        startWeek() {
+        startWeek () {
             return new Date(`${this.year}-${this.month}-1`).getDay()
         }
     },
-    watch : {
-        startWeek() {
-            this.$el.getElementsByClassName('date')[0].style.marginLeft = this.startWeek * 30 + 'px';
+    watch: {
+        startWeek () {
+            this.$el.getElementsByClassName('date')[0].style.marginLeft = this.startWeek * 30 + 'px'
         }
     },
-    methods : {
-        selectDate(day){
-            this.$dispatch('selectDate', `${this.year}-${this.month}-${day}`);
+    methods: {
+        selectDate (day) {
+            var date = `${this.year}-${this.month}-${day}`
+            if (new Date(date).getTime() < new Date().getTime()) {
+                bus.$emit('msg', {
+                    message: '输入日期不能小于当前日期',
+                    type: 'fail'
+                })
+                return
+            }
+            this.$emit('selectDate', date)
         }
     }
-};
+}
 
 </script>
 

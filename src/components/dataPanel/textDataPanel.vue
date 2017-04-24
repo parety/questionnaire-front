@@ -6,41 +6,33 @@
             <p>{{title}}</p>
         </div>
     </h2>
-    <div class="graph" v-el:graph>
+    <div class="graph" ref='graph'>
 
     </div>
 </div>
 </template>
 
 <script type="text/ecmascript-6">
-var echarts = require('echarts');
+let echarts = require('echarts')
 
 export default {
-    props : ['content', 'title', 'index'],
-    data() {
-        return {
-        };
-    },
-    ready(){
-        var xAxis = Object.keys(this.content);
-        var data = [];
-        for(var key in this.content){
-            data.push(this.content[key])
-        }
-        echarts.init(this.$els.graph).setOption({
-            tooltip : {},
-            xAxis : {
-                data : xAxis
+    props: ['optionNum', 'optionTxt', 'title', 'index'],
+    mounted () {
+        let xAxis = ['Valid', 'Invalid']
+        echarts.init(this.$refs.graph).setOption({
+            tooltip: {},
+            xAxis: {
+                data: xAxis
             },
-            yAxis : {
-                interval : 1,
-                min : 0,
-                max : 'dataMax'
+            yAxis: {
+                interval: 1,
+                min: 0,
+                max: 'dataMax'
             },
-            series : [{
-                name : '票数',
-                type : 'bar',
-                data : data
+            series: [{
+                name: '票数',
+                type: 'bar',
+                data: this.optionNum
             }]
         })
     }

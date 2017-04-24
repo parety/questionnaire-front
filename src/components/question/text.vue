@@ -1,51 +1,71 @@
 <template>
-<div class="text">
-    <h2>
-        <div>Q{{index+1}}</div>
-        <div>
-            <p v-show='!titleInput' @click="titleInput=true">{{content.title}}</p>
-            <input v-else type="text" :value="content.title" @blur="modifyTitle($event)">
+    <div class="text">
+        <h2>
+            <div>Q{{index+1}}</div>
+            <div>
+                <p v-if='!titleModify' @click="showTitleInput">{{content.title}}</p>
+                <input v-else ref="titleInput" type="text" :value="content.title" @blur="modifyTitle($event)">
+            </div>
+            <div>
+                <input type="checkbox" v-model="content.required" @click="changeRequire"> 
+                <span>此题是否必填</span>
+            </div>
+        </h2>
+        <div class="textContainer">
+            <textarea rows="4" cols="50"></textarea>
         </div>
-    </h2>
-    <div class="textContainer">
-        <textarea rows="4" cols="50" :name="'question-'+index"></textarea>
+        <div class="direct">    
+            <span @click="deleteQuestion" class="right">删除</span>
+            <span @click="repeatQuestion" class="right">复用</span>
+            <span @click="toDown" class="right" v-if="index!==alllen-1">下移</span>
+            <span @click="toUp" class="right" v-if="index!==0">上移</span>
+        </div>
     </div>
-    <div class="direct">    
-        <span @click="deleteQuestion" class="right">删除</span>
-        <span @click="repeatQuestion" class="right">复用</span>
-        <span @click="toDown" class="right" v-if="index!==alllen-1">下移</span>
-        <span @click="toUp" class="right" v-if="index!==0">上移</span>
-    </div>
-</div>
 </template>
 
 <script type="text/ecmascript-6">
 export default {
-    props : ['content', 'index', 'alllen'],
-    data() {
+    props: ['content', 'index', 'alllen'],
+    data () {
         return {
-            titleInput : false
-        };
+            titleModify: false
+        }
     },
-    methods : {
-        modifyTitle(ev){
-            this.$dispatch('modifytitle', ev.target.value, this.index);
-            this.titleInput = false;
-        },                 
-        repeatQuestion(){
-            this.$dispatch('repeatQuestion', this.index);
+    methods: {
+        // 显示title输入框
+        showTitleInput () {
+            this.titleModify = true
+            this.$nextTick(() => {
+                this.$refs.titleInput.focus()
+            })
         },
-        deleteQuestion(){
-            this.$dispatch('deleteQuestion', this.index);
+        // 改变title值
+        modifyTitle (ev) {
+            this.$emit('modifyQuestionTitle', ev.target.value, this.index)
+            this.titleModify = false
         },
-        toDown(){
-            this.$dispatch('toDown', this.index);
-        },    
-        toUp(){
-            this.$dispatch('toUp', this.index);
-        }    
+        // 删除问题
+        deleteQuestion () {
+            this.$emit('deleteQuestion', this.index)
+        },
+        // 复用问题
+        repeatQuestion () {
+            this.$emit('repeatQuestion', this.index)
+        },
+        // 下移
+        toDown () {
+            this.$emit('toDown', this.index)
+        },
+        // 上移
+        toUp () {
+            this.$emit('toUp', this.index)
+        },
+        // 改变是否必选
+        changeRequire () {
+            this.$emit('changeRequire', this.index)
+        }
     }
-};
+}
 
 </script>
 
@@ -67,7 +87,7 @@ export default {
             &:nth-child(1) 
                 width : 6%
             &:nth-child(2)
-                width : 94%
+                width : 70%
                 p 
                     width : 100% 
                 input 
@@ -76,7 +96,11 @@ export default {
                     height : 100%
                     border : none
                     outline : none
+            &:nth-child(3)
+                width: 24% 
+                text-align: right
     .textContainer
+        margin-top: 10px
         padding-left : 34px
         textarea 
             padding : 10px
