@@ -1,5 +1,5 @@
 # questionaire
-#### 最近在学习vue，随话说光说不练假把式，于是乎做个小项目。项目来源：http://ife.baidu.com/2016/task/detail?taskId=50, 以此为原型增加了用户登录的功能。
+#### 最近在学习vue，随话说光说不练假把式，于是乎做个小项目。项目来源：http://ife.baidu.com/2016/task/detail?taskId=50，以此为原型增加了用户登录的功能。
 
 ## 技术栈
 #### vue+vue-router+vue-resource+express+mongoose
@@ -39,3 +39,50 @@ app.all('*', function(req, res, next) {
     next()
 })
 ```
+
+### 2017-4-22 完成single、multiple、txt、calendar四个组件的编写，完成了创建问卷页面
+
+### 2017-4-23 完成用户界面
+
+### 2017-4-24 完成答卷功能
+#### 这里遇到一个问题：如何避免同一问卷多次回答的问题
+
+```
+// 我的办法是将填写过的问题id写入到本地  每次提交时检查本地是否已存在
+
+let userSubmit = JSON.parse(localStorage.getItem('qustionaire')) || []
+if (已存在) return
+userSubmit.push(questionaireId)
+localStorage.setItem('qustionaire', JSON.stringify(userSubmit))
+
+```
+### 2017-4-25 引入Echarts，结尾
+#### 这里还有一个需要注意的地方，由于vue-router使用的history模式，后端需要做相应的处理
+
+```
+var history = require('connect-history-api-fallback')
+// 刷新页面时重新定向到index.html  否则会出现资源不存在
+app.use(history({
+    index: '/index.html'
+}))
+```
+
+## 安装
+
+```
+$ git clone https://github.com/zyl1314/questionnaire-front.git
+$ cd questionnaire-front
+$ npm install
+$ npm run dev
+```
+#### 注意数据不是mock的，需要安装相应的后端环境,如下
+
+```
+$ git clone https://github.com/zyl1314/questionnaire.git
+$ cd questionnaire
+$ npm install
+$ node index
+```
+#### 记得开启mongoDB
+
+## [线上地址](http://questionaire.duapp.com/)（可以使用test 111111登录）
