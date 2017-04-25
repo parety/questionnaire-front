@@ -60,7 +60,7 @@ export default {
     mounted () {
         this.ower = bus.user.id
         // 发布问卷
-        bus.$on('publish', () => {
+        bus.$once('publish', () => {
             this.$http.post('/api/save', {
                 ower: this.ower,
                 createTime: new Date().getTime(),
