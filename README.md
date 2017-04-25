@@ -1,5 +1,5 @@
 # questionaire
-#### 最近在学习vue，随话说光说不练假把式，于是乎做个小项目。项目来源：http://ife.baidu.com/2016/task/detail?taskId=50，以此为原型增加了用户登录的功能。
+#### 最近在学习vue，随话说光说不练假把式，于是乎做个小项目。项目来源：http://ife.baidu.com/2016/task/detail?taskId=50, 以此为原型增加了用户登录的功能。
 
 ## 技术栈
 #### vue+vue-router+vue-resource+express+mongoose
